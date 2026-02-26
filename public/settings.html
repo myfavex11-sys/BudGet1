@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetNgai - ตั้งค่า</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>BudgetNgai</h1>
+        <nav>
+            <a href="index.html">Dashboard</a>
+            <a href="settings.html">ตั้งค่า</a>
+            <a href="login.html">ออกจากระบบ</a>
+        </nav>
+    </header>
+    <main class="settings card">
+    <div class="container">
+        <section class="users">
+            <h2>👥 สมาชิกครอบครัว</h2>
+            <ul id="user-list">
+                <li>พ่อ <select><option>ผู้ดูแล</option><option>บันทึก</option></select></li>
+                <li>แม่ <select><option>ผู้ดูแล</option><option>บันทึก</option></select></li>
+                <li>ลูก <select><option>บันทึก</option><option>ผู้ดูแล</option></select></li>
+            </ul>
+            <button id="add-user">เพิ่มสมาชิก</button>
+        </section>
+        <section class="budgets">
+            <h2>🎯 งบประมาณรายเดือน</h2>
+            <label>พ่อ: <input type="number" id="budget-father" min="0"></label>
+            <label>แม่: <input type="number" id="budget-mother" min="0"></label>
+            <label>ลูก: <input type="number" id="budget-child" min="0"></label>
+            <button id="save-budgets">บันทึกงบประมาณ</button>
+        </section>
+        <section class="categories">
+            <h2>🗂 หมวดหมู่ (Hierarchy)</h2>
+            <button id="add-parent-category">เพิ่มกลุ่มใหญ่</button>
+            <ul id="parent-category-list">
+                <li>อาหาร
+                    <ul>
+                        <li>ของสด</li>
+                        <li>ร้านอาหาร</li>
+                        <li>ขนม</li>
+                    </ul>
+                </li>
+                <li>การเดินทาง
+                    <ul>
+                        <li>รถยนต์</li>
+                        <li>ค่าน้ำมัน</li>
+                    </ul>
+                </li>
+                <li>ค่าสาธารณูปโภค</li>
+            </ul>
+        </section>
+    </main>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>

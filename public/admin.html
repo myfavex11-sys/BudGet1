@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetNgai - Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>BudgetNgai (Admin)</h1>
+        <nav>
+            <a href="index.html">Dashboard</a>
+            <a href="settings.html">ตั้งค่า</a>
+            <a href="/logout">ออกจากระบบ</a>
+        </nav>
+    </header>
+    <main class="admin card">
+    <div class="container">
+        <h2>📝 รายการทั้งหมด</h2>
+        <a id="export-csv" class="button" style="display:inline-block;margin-bottom:1rem;">📥 Export CSV</a>
+        <a id="export-xlsx" class="button" style="display:inline-block;margin-bottom:1rem;margin-left:.5rem;">📊 Export Excel</a>
+        <a id="export-pdf" class="button" style="display:inline-block;margin-bottom:1rem;margin-left:.5rem;">🖨️ Export PDF</a>
+        <table id="admin-table">
+            <thead>
+                <tr><th>รายการ</th><th>จำนวน</th><th>ประเภท</th><th>สมาชิก</th><th>หมวดหมู่</th><th>วันที่</th><th>โน้ต</th><th>จัดการ</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    </main>
+    <script>
+        async function loadAll(){
+            const res = await fetch('/api/transactions');
+            const data = await res.json();
+            const tbody = document.querySelector('#admin-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(tx=>{
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${tx.note||''}</td><td>${tx.amount}</td><td>${tx.type}</td><td>${tx.member}</td><td>${tx.category.parent}${tx.category.sub?'/'+tx.category.sub:''}</td><td>${tx.date}</td><td>${tx.note||''}</td><td><button data-id="${tx.id}" class="edit">แก้ไข</button> <button data-id="${tx.id}" class="delete">ลบ</button></td>`;
+                tbody.appendChild(tr);
+            });
+            document.querySelectorAll('.delete').forEach(btn=>{
+                btn.addEventListener('click', async e=>{
+                    const id=e.target.dataset.id;
+                    await fetch('/api/transactions/'+id,{method:'DELETE'});
+                    loadAll();
+                });
+            });
+            document.querySelectorAll('.edit').forEach(btn=>{
+                btn.addEventListener('click', async e=>{
+                    const id=e.target.dataset.id;
+                    const tx = data.find(x=>x.id==id);
+                    if(!tx) return;
+                    const newAmt = prompt('จำนวนเงิน', tx.amount);
+                    if(newAmt!==null){
+                        tx.amount = parseFloat(newAmt) || tx.amount;
+                        await fetch('/api/transactions/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(tx)});
+                        loadAll();
+                    }
+                });
+            });
+        }
+        window.addEventListener('DOMContentLoaded', loadAll);
+    </script>
+</body>
+</html>
