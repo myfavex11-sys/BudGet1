@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
-const csvStringify = require('csv-stringify/lib/sync');
+const { stringify } = require('csv-stringify/sync');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -87,7 +87,7 @@ app.get('/admin/export', authRequired, (req,res)=>{
     const records = transactions.map(t=>[
         t.id, t.note||'', t.amount, t.type, t.member, t.category.parent+(t.category.sub?'/'+t.category.sub:''), t.date, t.receipt||''
     ]);
-    const csv = csvStringify(records,{ header:true, columns:header });
+    const csv = stringify(records,{ header:true, columns:header });
     if(fmt==='xlsx'){
         res.setHeader('Content-disposition','attachment; filename=transactions.xlsx');
         res.set('Content-Type','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
