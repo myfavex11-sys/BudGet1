@@ -470,6 +470,13 @@ function initializeTransactionForm(prefillMember, prefillType, prefillCategory) 
     document.getElementById('amount-display').textContent = '0';
     document.getElementById('tx-amount').value = '0';
     
+    // auto-fill current date
+    const dateInput = document.getElementById('tx-date');
+    if(dateInput) {
+        const now = new Date();
+        dateInput.value = now.toISOString().split('T')[0];
+    }
+
     const member = prefillMember || 'father';
     const type = prefillType || 'expense';
     const category = prefillCategory || '';
@@ -642,6 +649,10 @@ function attachHandlers() {
     });
     document.getElementById('transaction-form')?.addEventListener('submit', async e=>{
         e.preventDefault();
+        // add confirmation popup before saving
+        if(!confirm('ยืนยันการบันทึกธุรกรรมนี้?')){
+            return;
+        }
         const formData = new FormData(e.target);
         
         // Ensure category is set
@@ -737,7 +748,8 @@ function attachHandlers() {
             margin: 0;
             animation: slideUp 0.5s ease 0.2s backwards;
         `;
-        message.textContent = 'บันทึกเรียบร้อย';
+        // change text to exactly what user requested
+        message.textContent = 'บันทึกสำเร็จแล้ว';
         
         const subtitle = document.createElement('p');
         subtitle.style.cssText = `
@@ -746,7 +758,7 @@ function attachHandlers() {
             margin: 0.5rem 0 0 0;
             animation: slideUp 0.5s ease 0.4s backwards;
         `;
-        subtitle.textContent = 'กำลังไปยังประวัติการทำธุรกรรม...';
+        subtitle.textContent = 'กำลังกลับไปหน้าแรกของเว็บไซต์...';
         
         modalContent.appendChild(checkmark);
         modalContent.appendChild(message);
@@ -754,9 +766,9 @@ function attachHandlers() {
         successModal.appendChild(modalContent);
         document.body.appendChild(successModal);
         
-        // Redirect to history page after 2 seconds
+        // Redirect to homepage (dashboard) after 2 seconds
         setTimeout(() => {
-            window.location.href = '/history.html';
+            window.location.href = '/index.html';
         }, 2000);
         
         hideForm();
