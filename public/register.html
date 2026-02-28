@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BudgetNgai - เข้าสู่ระบบ</title>
+    <title>BudgetNgai - สมัครสมาชิก</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .auth-page {
@@ -74,6 +74,12 @@
             background: #fff;
         }
 
+        .form-help {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.3rem;
+        }
+
         .btn-submit {
             width: 100%;
             padding: 1rem;
@@ -130,6 +136,12 @@
             border: 1px solid #ef5350;
         }
 
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #66bb6a;
+        }
+
         @media (max-width: 480px) {
             .auth-container {
                 padding: 2rem;
@@ -146,12 +158,24 @@
     <div class="auth-container">
         <div class="auth-header">
             <h1>💰 BudgetNgai</h1>
-            <p>เข้าสู่ระบบบัญชีของคุณ</p>
+            <p>สร้างบัญชีใหม่ของคุณ</p>
         </div>
 
         <div id="alert-container"></div>
 
-        <form id="login-form">
+        <form id="register-form">
+            <div class="form-group">
+                <label for="family-name">👨‍👩‍👧‍👦 ชื่อครอบครัว *</label>
+                <input 
+                    type="text" 
+                    id="family-name" 
+                    name="family_name" 
+                    required 
+                    placeholder="เช่น ครอบครัวสมชาย"
+                >
+                <div class="form-help">ชื่อที่ใช้ระบุครอบครัวของคุณ</div>
+            </div>
+
             <div class="form-group">
                 <label for="username">👤 ชื่อผู้ใช้ *</label>
                 <input 
@@ -159,9 +183,10 @@
                     id="username" 
                     name="username" 
                     required 
-                    placeholder="กรอกชื่อผู้ใช้ของคุณ"
-                    autofocus
+                    placeholder="เช่น somchai123"
+                    minlength="4"
                 >
+                <div class="form-help">ต้องมีอย่างน้อย 4 ตัวอักษร ไม่มีช่องว่าง</div>
             </div>
 
             <div class="form-group">
@@ -172,14 +197,28 @@
                     name="password" 
                     required 
                     placeholder="กรอกรหัสผ่าน"
+                    minlength="6"
                 >
+                <div class="form-help">ต้องมีอย่างน้อย 6 ตัวอักษร</div>
             </div>
 
-            <button type="submit" class="btn-submit">🔑 เข้าสู่ระบบ</button>
+            <div class="form-group">
+                <label for="password-confirm">🔐 ยืนยันรหัสผ่าน *</label>
+                <input 
+                    type="password" 
+                    id="password-confirm" 
+                    name="password_confirm" 
+                    required 
+                    placeholder="กรอกรหัสผ่านอีกครั้ง"
+                >
+                <div class="form-help">ต้องตรงกับรหัสผ่านข้างบน</div>
+            </div>
+
+            <button type="submit" class="btn-submit">📝 สมัครสมาชิก</button>
         </form>
 
         <div class="auth-footer">
-            <p>ยังไม่มีบัญชี? <a href="/register.html">สมัครสมาชิกใหม่</a></p>
+            <p>มีบัญชีแล้ว? <a href="/login.html">เข้าสู่ระบบ</a></p>
             <p style="margin-top: 0.5rem;">
                 <a href="/home.html" style="color: #999;">← กลับหน้าแรก</a>
             </p>
@@ -187,41 +226,64 @@
     </div>
 
     <script>
-        const form = document.getElementById('login-form');
+        const form = document.getElementById('register-form');
         const alertContainer = document.getElementById('alert-container');
-
-        // Show error if present
-        if(location.search.includes('error=1')){
-            showAlert('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
-        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const familyName = document.getElementById('family-name').value.trim();
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password-confirm').value;
 
-            if (!username || !password) {
-                showAlert('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'error');
+            // Validation
+            if (!familyName) {
+                showAlert('กรุณากรอกชื่อครอบครัว', 'error');
+                return;
+            }
+
+            if (!username) {
+                showAlert('กรุณากรอกชื่อผู้ใช้', 'error');
+                return;
+            }
+
+            if (username.length < 4) {
+                showAlert('ชื่อผู้ใช้ต้องมีอย่างน้อย 4 ตัวอักษร', 'error');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                showAlert('ชื่อผู้ใช้สามารถมีเฉพาะตัวอักษร ตัวเลข และขีดเว้น (_) เท่านั้น', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร', 'error');
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                showAlert('รหัสผ่านไม่ตรงกัน', 'error');
                 return;
             }
 
             try {
-                const response = await fetch('/login', {
+                const response = await fetch('/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ family_name: familyName, username, password })
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    showAlert('✅ เข้าสู่ระบบสำเร็จ! กำลังเปลี่ยนไปยังแดชบอร์ด...', 'success');
+                    showAlert('✅ สมัครสมาชิกสำเร็จ! กำลังไปยังหน้าเข้าสู่ระบบ...', 'success');
                     setTimeout(() => {
-                        window.location.href = '/index.html';
-                    }, 1000);
+                        window.location.href = '/login.html';
+                    }, 1500);
                 } else {
-                    showAlert(data.error || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+                    showAlert(data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);

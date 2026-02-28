@@ -12,6 +12,9 @@ const port = process.env.PORT || 3000;
 // simple in-memory storage
 let transactions = [];
 let budgets = { father:0, mother:0, child:0 };
+let users = [
+    { id: 1, family_name: 'Demo Family', username: 'demo', password: '1234' }
+];
 
 // upload config
 const upload = multer({ dest: path.join(__dirname,'public','uploads') });
@@ -33,37 +36,106 @@ app.use((req,res,next)=>{
     next();
 });
 
-// serve static public folder
-app.use(express.static(path.join(__dirname, 'public')));
-
 function authRequired(req, res, next) {
+    if (req.session && req.session.authenticated) return next();
+    res.status(401).json({ success: false, error: 'Not authenticated' });
+}
+
+function pageAuthRequired(req, res, next) {
     if (req.session && req.session.authenticated) return next();
     res.redirect('/login.html');
 }
 
-// root redirect
+// root redirect to home
 app.get('/', (req, res) => {
-    if (req.session && req.session.authenticated) res.redirect('/index.html');
-    else res.redirect('/login.html');
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+
+// Protected page routes (MUST be before static middleware)
+app.get('/index.html', pageAuthRequired, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/settings.html', pageAuthRequired, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+});
+
+app.get('/admin.html', pageAuthRequired, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// serve static public folder (for CSS, JS, images, and public pages like home.html, login.html, register.html)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// root redirect to home
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+
+// registration route
+app.post('/register', (req, res) => {
+    const { family_name, username, password } = req.body;
+    
+    // Validation
+    if (!family_name || !username || !password) {
+        return res.status(400).json({ success: false, error: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+    }
+    
+    if (username.length < 4) {
+        return res.status(400).json({ success: false, error: 'ชื่อผู้ใช้ต้องมีอย่างน้อย 4 ตัวอักษร' });
+    }
+    
+    if (password.length < 6) {
+        return res.status(400).json({ success: false, error: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' });
+    }
+    
+    // Check if username already exists
+    if (users.find(u => u.username === username)) {
+        return res.status(400).json({ success: false, error: 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว' });
+    }
+    
+    // Create new user
+    const newUser = {
+        id: users.length + 1,
+        family_name,
+        username,
+        password
+    };
+    
+    users.push(newUser);
+    res.json({ success: true, message: 'สมัครสมาชิกสำเร็จ' });
 });
 
 // login route
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    if (username === 'admin' && password === '1234') {
+    
+    // Find user
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user) {
         req.session.authenticated = true;
-        req.session.user = 'admin';
-        res.redirect('/index.html');
+        req.session.user = user;
+        res.json({ success: true, message: 'เข้าสู่ระบบสำเร็จ' });
     } else {
-        res.redirect('/login.html?error=1');
+        res.status(401).json({ success: false, error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
     }
 });
 
 // logout
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
-        res.redirect('/login.html');
+        res.redirect('/home.html');
     });
+});
+
+// get current user info
+app.get('/api/user', authRequired, (req, res) => {
+    if (req.session && req.session.user) {
+        res.json({ success: true, user: { family_name: req.session.user.family_name, username: req.session.user.username } });
+    } else {
+        res.status(401).json({ success: false, error: 'Not authenticated' });
+    }
 });
 
 // admin page, protected

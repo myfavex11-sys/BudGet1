@@ -8,27 +8,44 @@
 </head>
 <body>
     <header class="site-header">
-        <h1>BudgetNgai</h1>
-        <nav>
-            <a href="index.html">🏠 Dashboard</a>
-            <a href="settings.html">⚙️ ตั้งค่า</a>
-            <a href="/logout">🔓 ออกจากระบบ</a>
-        </nav>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <h1>💰 BudgetNgai</h1>
+            <div style="text-align: right;">
+                <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                    👨‍👩‍👧 <span id="family-name" style="font-weight: 600; color: #333;"></span>
+                </p>
+                <nav style="margin: 0;">
+                    <a href="index.html">🏠 Dashboard</a>
+                    <a href="history.html">📋 ประวัติ</a>
+                    <a href="settings.html">⚙️ ตั้งค่า</a>
+                    <a href="/logout">🔓 ออกจากระบบ</a>
+                </nav>
+            </div>
+        </div>
     </header>
     <div id="notification-area" style="position:fixed;top:4rem;right:1rem;z-index:1001;display:flex;flex-direction:column;gap:.5rem;"></div>
     <main class="dashboard">
     <div class="container">
         <section class="summary">
             <div class="summary-card balance-card">
-                <h2>💰 ยอดคงเหลือ</h2>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h2>💰 ยอดคงเหลือ</h2>
+                    <button id="delete-balance" class="delete-btn" title="ล้างยอดคงเหลือ">🗑️</button>
+                </div>
                 <p id="total-balance">฿0.00</p>
             </div>
             <div class="summary-card income-card">
-                <h2>📈 รายรับรวม <span id="income-trend">▲</span></h2>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h2>📈 รายรับรวม <span id="income-trend">▲</span></h2>
+                    <button id="delete-income" class="delete-btn" title="ล้างรายรับ">🗑️</button>
+                </div>
                 <p id="total-income">฿0.00</p>
             </div>
             <div class="summary-card expense-card">
-                <h2>📉 รายจ่ายรวม <span id="expense-trend">▼</span></h2>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h2>📉 รายจ่ายรวม <span id="expense-trend">▼</span></h2>
+                    <button id="delete-expense" class="delete-btn" title="ล้างรายจ่าย">🗑️</button>
+                </div>
                 <p id="total-expense">฿0.00</p>
             </div>
         </section>
@@ -48,24 +65,35 @@
         </section>
         <section class="member-breakdown">
             <div class="father">
-                <strong>พ่อ</strong>
-                <p id="father-total">฿0.00</p>
+                <strong>👨 พ่อ</strong>
+                <div class="budget-display">
+                    <span id="father-budget" class="budget-amount">฿0.00</span>
+                </div>
+                <p id="father-total" class="spending-amount">ใช้: ฿0.00</p>
                 <div class="progress" id="father-progress"></div>
             </div>
             <div class="mother">
-                <strong>แม่</strong>
-                <p id="mother-total">฿0.00</p>
+                <strong>👩 แม่</strong>
+                <div class="budget-display">
+                    <span id="mother-budget" class="budget-amount">฿0.00</span>
+                </div>
+                <p id="mother-total" class="spending-amount">ใช้: ฿0.00</p>
                 <div class="progress" id="mother-progress"></div>
             </div>
             <div class="child">
-                <strong>ลูก</strong>
-                <p id="child-total">฿0.00</p>
+                <strong>👧 ลูก</strong>
+                <div class="budget-display">
+                    <span id="child-budget" class="budget-amount">฿0.00</span>
+                </div>
+                <p id="child-total" class="spending-amount">ใช้: ฿0.00</p>
                 <div class="progress" id="child-progress"></div>
             </div>
         </section>
         <section class="quick-actions">
             <button id="add-transaction" class="fab">➕</button>
             <button id="manage-categories">🗃️ จัดการหมวดหมู่</button>
+            <a href="history.html" class="btn-link" style="display:inline-block;margin-left:0.5rem;">📋 ประวัติ</a>
+            <a href="settings.html" class="btn-link" style="display:inline-block;margin-left:0.5rem;">⚙️ แก้ไขงบประมาณและสมาชิก</a>
         </section>
         <section class="transaction-form-enhanced" id="transaction-section" style="display:none;">
             <h2>➕ เพิ่มธุรกรรมใหม่</h2>
@@ -74,9 +102,12 @@
             <div class="form-section">
                 <label>เลือกสมาชิก</label>
                 <div class="member-buttons">
-                    <button type="button" class="member-btn" data-member="father" style="background:#4a90e2;">👨 พ่อ</button>
+                    <button type="button" class="member-btn active" data-member="father" style="background:#4a90e2;">👨 พ่อ</button>
                     <button type="button" class="member-btn" data-member="mother" style="background:#ff69b4;">👩 แม่</button>
                     <button type="button" class="member-btn" data-member="child" style="background:#ffd700;color:#333;">👧 ลูก</button>
+                </div>
+                <div id="selected-member-display" style="margin-top: 1rem; padding: 0.75rem; background: rgba(74, 144, 226, 0.1); border-left: 4px solid #4a90e2; border-radius: 8px; font-weight: 600; color: #4a90e2;">
+                    ✓ เลือก: 👨 พ่อ
                 </div>
                 <input type="hidden" id="tx-member" name="member" value="father">
             </div>
@@ -115,7 +146,13 @@
                 </div>
                 
                 <div class="form-section">
-                    <label>หมวดหมู่</label>
+                    <div class="category-header">
+                        <label>หมวดหมู่</label>
+                        <div class="category-actions">
+                            <button type="button" id="quick-add-category" class="btn-link" title="เพิ่มหมวดหมู่ใหม่">➕ เพิ่มหมวดหมู่</button>
+                            <a href="settings.html" class="btn-link" title="ไปยังหน้าตั้งค่า">⚙️ จัดการหมวดหมู่</a>
+                        </div>
+                    </div>
                     <div class="category-icons" id="category-icons">
                         <!-- Generated by JS -->
                     </div>
@@ -151,6 +188,25 @@
         <img id="receipt-img" src="" style="max-width:90%;max-height:90%;border-radius:12px;" />
     </div>
     <div id="flash-message" style="position:fixed;top:5rem;left:50%;transform:translateX(-50%);padding:1rem 2rem;background:#ffeaa7;border-radius:8px;display:none;z-index:1000;"></div>
+    
+    <script>
+        // Fetch and display family name
+        async function loadUserInfo() {
+            try {
+                const res = await fetch('/api/user');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.user) {
+                        document.getElementById('family-name').textContent = data.user.family_name;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+        loadUserInfo();
+    </script>
+    
     <script src="js/app.js"></script>
 </body>
 </html>
